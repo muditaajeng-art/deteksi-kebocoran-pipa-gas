@@ -28,4 +28,4 @@ Metrik klasifikasi dan hasil simulasi deteksi digital twin deterministik; waktu 
 
 ## Lisensi dan sitasi
 Kode dilisensikan di bawah lisensi MIT (lihat berkas `LICENSE`).
-DOI Zenodo: ISI_DOI_SETELAH_RILIS
+DOI Zenodo: DOI: 10.5281/zenodo.24052895
