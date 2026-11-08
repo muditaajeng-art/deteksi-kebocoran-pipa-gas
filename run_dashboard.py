@@ -6,7 +6,7 @@ import config as C, sim, features
 def drop_of(o): return C.DROP_10 + (o - 10) * (C.DROP_100 - C.DROP_10) / 90.0
 
 def run(rng, o, T, leak=True, valve_close=None):
-    """Satu simulasi dashboard: kondisi tunak tanpa transien; katup uji dibuka pada detik ke-60."""
+    """Satu simulasi deteksi digital twin: kondisi tunak tanpa transien; katup uji dibuka pada detik ke-60."""
     pin = np.full(T, C.PIN0); q = np.full(T, C.Q0)
     kappa = 1.0 + C.KAPPA_SD * rng.normal()
     p_true = np.stack([sim.lowpass(s, C.TAU_TRUE) for s in sim.p_ss(pin, q, C.K_PIPE * kappa)])
@@ -28,25 +28,17 @@ def first_alarm(r, th):
 def merge_count(t):
     t = np.sort(t); return 0 if len(t) == 0 else 1 + int((np.diff(t) > C.MERGE_GAP).sum())
 
-def latency(rng, n):
-    return np.clip(rng.lognormal(np.log(C.MQTT_LAT_MEDIAN_MS), C.MQTT_LAT_SIGMA, n), *C.MQTT_LAT_CLIP)
-
 out = dict(by_opening={}, threshold={}, normal={})
-lat_all = []
 for o in C.OPENINGS:
     t = []
     for j in range(C.DASH_RUNS):
         r = rng_for(o, j); _, _, res = run(r, o, C.DASH_T)
         a = first_alarm(res, C.THRESH)
-        lat = latency(rng_for(o, j, 9), C.DASH_T); lat_all.append(lat)
         t.append(a)
     ok = np.array([x for x in t if x is not None], float)
     out['by_opening'][o] = dict(drop_s1=drop_of(o), detected=int(len(ok)), n=C.DASH_RUNS,
                                 mean=float(ok.mean()), sd=float(ok.std(ddof=1)), min=int(ok.min()), max=int(ok.max()))
     print(o, out['by_opening'][o], flush=True)
-lat_all = np.concatenate(lat_all)
-out['mqtt_latency_ms'] = dict(min=float(lat_all.min()), max=float(lat_all.max()), mean=float(lat_all.mean()),
-                              median=float(np.median(lat_all)), n=int(lat_all.size))
 # --- Simulasi tanpa kebocoran: alarm palsu per ambang
 normal_res = [run(rng_for(0, j), 0, C.DASH_NORMAL_LEN, leak=False)[2] for j in range(C.DASH_RUNS)]
 hours = C.DASH_RUNS * C.DASH_NORMAL_LEN / 3600

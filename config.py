@@ -31,11 +31,10 @@ MERGE_GAP = 60                # detik, alarm berjarak <= ini dihitung satu episo
 THRESH, NCONSEC = 0.20, 3     # aturan ambang residual (bar, sampel berturut-turut)
 N_FOLDS = 5
 NOISE_LEVELS = (1, 2, 3)
-# --- Simulasi dashboard
+# --- Simulasi deteksi digital twin
 DASH_TAU_VALVE, DASH_GAMMA, DASH_LAG2 = 6.0, 0.8, 3
 DASH_LEAK_AT, DASH_T, DASH_RUNS = 60, 660, 200
 DASH_NORMAL_LEN = 3600
 DROP_10, DROP_100 = 0.30, 2.00           # bar di sensor 1 pada bukaan 10% dan 100%
 OPENINGS = tuple(range(10, 101, 10))
 DASH_THRESHOLDS = (0.10, 0.20, 0.30)
-MQTT_LAT_MEDIAN_MS, MQTT_LAT_SIGMA, MQTT_LAT_CLIP = 41.0, 0.30, (18.0, 70.0)
